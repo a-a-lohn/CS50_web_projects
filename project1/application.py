@@ -4,6 +4,7 @@ from flask import Flask, session, render_template, request
 from flask_session import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
+#from flask_sqlalchemy import SQLAlchemy
 # Import table definitions.
 from models import *
 
@@ -21,7 +22,7 @@ Session(app)
 # Set up database
 engine = create_engine(os.getenv("DATABASE_URL"))
 db = scoped_session(sessionmaker(bind=engine))
-
+#db = sqlalchemy(app)
 # Tell Flask what SQLAlchemy database to use
 #app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
 #app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -29,8 +30,12 @@ db = scoped_session(sessionmaker(bind=engine))
 
 # To create tables--executed once
 #db.execute()
-tables = open("tables.sql")
-db.execute(tables)
+#tables = open("tables.sql")
+db.execute('''CREATE TABLE IF NOT EXISTS user (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR NOT NULL,
+    password VARCHAR NOT NULL
+;''')
 
 @app.route("/")
 def index():
