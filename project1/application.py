@@ -28,15 +28,6 @@ db = scoped_session(sessionmaker(bind=engine))
 #app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 #db.init_app(app)
 
-# To create tables--executed once
-#db.execute()
-#tables = open("tables.sql")
-db.execute('''CREATE TABLE IF NOT EXISTS user (
-    id SERIAL PRIMARY KEY,
-    username VARCHAR NOT NULL,
-    password VARCHAR NOT NULL
-;''')
-
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -45,6 +36,7 @@ def index():
 def search():
     uname = request.form.get("username")
     pw = request.form.get("password")
-    print(pw) #remove this
     #verify that uname and pw are valid
+    db.execute("INSERT INTO \"user\" (\"username\", \"password\") VALUES ('testu', 'testp');")
+    db.commit()
     return render_template("search.html", name=uname)
