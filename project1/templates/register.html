@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+
+{% block heading %}
+    Registration page
+{% endblock %}
+
+{% block body %}
+    <form action="{{ url_for('search') }}" method="post">
+        <input type="text" name="username" placeholder="Username">
+        <input type="text" name="password1" placeholder="Password">
+        <input type="text" name="password2" placeholder="Confirm password">
+        <button>Register and log in now!</button>
+    </form>
+{% endblock %}

@@ -31,12 +31,19 @@ db.init_app(app)
 def index():
     return render_template("index.html")
 
+@app.route("/register", methods=["POST"])
+def register():
+    uname = request.form.get("username")
+    pw = request.form.get("password1")
+    user = User(username=uname, password=pw)
+    db.session.add(user)
+    db.session.commit()
+    return render_template("register.html")
+
 @app.route("/search", methods=["POST"])
 def search():
     uname = request.form.get("username")
     pw = request.form.get("password")
     #verify that uname and pw are valid
-    user = User(username="dad", password="1234")
-    db.session.add(user)
-    db.session.commit()
+    
     return render_template("search.html", name=uname)
