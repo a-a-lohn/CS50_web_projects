@@ -5,10 +5,19 @@
 {% endblock %}
 
 {% block body %}
+    {% if empty_field %}
+        Please enter both a username and a password
+    {% endif %}
+    {% if invalid_user %}
+        Incorrect username or password
+    {% endif %}
     <form action="{{ url_for('search') }}" method="post">
         <input type="text" name="username" placeholder="Username">
         <input type="text" name="password" placeholder="Password">
         <button>Log in</button>
     </form>
-    New user? Register <a href="register.html">here!</a>
+    New user?
+    <form action="{{ url_for('register') }}" method="post">
+        <button>Register here!</button>
+    </form>
 {% endblock %}
