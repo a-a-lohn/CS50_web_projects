@@ -27,6 +27,9 @@ app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db.init_app(app)
 
+# DB CAN IDENTIFY NEW/EXISTING USERS, BUT APP MUST IDENTIFY WHO IS CURRENTLY LOGGED IN AND MUST INCLUDE A LOGOUT COMPONENT -- SESSIONS
+
+
 @app.route("/")
 def index(): 
     return render_template("index.html")
@@ -64,10 +67,12 @@ def search():
     pw = request.form.get("password")
 
     if not uname or not pw:
+        # in cases like these, is it not better to somehow redirect to the page instead?
         return render_template("index.html", empty_field=True)
 
     uname_present = User.query.filter(and_(User.username == uname, User.password == pw)).all()
     if not uname_present:
         return render_template("index.html", invalid_user=True)
 
+    #session[uname]
     return render_template("search.html", name=uname)
