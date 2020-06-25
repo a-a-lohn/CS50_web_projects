@@ -13,8 +13,6 @@ db.init_app(app)
 
 def main():
     db.create_all()
-    db.session.add(Book(isbn="123", title="test", author="me", year=2020))
-    db.session.commit()
 
 if __name__ == "__main__":
     with app.app_context():
