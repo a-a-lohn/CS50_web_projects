@@ -80,29 +80,7 @@ def register():
             flash("Sorry! That username is already taken")
             return render_template("register.html", exists=True) 
 
-    return render_template("register.html")
-
-@app.route("/authentication", methods=["POST"])
-def authentication():
-    # usernames are not case sensitive
-    uname = request.form.get("username").lower()
-    pw = request.form.get("password")
-
-    if not uname or not pw:
-        return render_template("register.html", empty_field=True)
-    
-    pw2 = request.form.get("password2")
-    if pw != pw2:
-        return render_template("register.html", mismatch=True)
-    
-    uname_taken = User.query.filter(User.username == uname).all()
-    if not uname_taken:
-        user = User(username=uname, password=pw)
-        db.session.add(user)
-        db.session.commit()
-        return redirect(url_for("index"), code=307) # this code preserves the method type. See https://stackoverflow.com/questions/15473626/make-a-post-request-while-redirecting-in-flask
-    else:
-        return render_template("register.html", exists=True)   
+    return render_template("register.html")  
 
 @app.route("/search", methods=["POST"])
 def search():
