@@ -4,7 +4,6 @@ from flask import Flask, session, render_template, request, redirect, url_for, f
 from flask_session import Session
 from sqlalchemy import create_engine, and_
 from sqlalchemy.orm import scoped_session, sessionmaker
-# Import table definitions
 from models import *
 
 app = Flask(__name__)
@@ -29,13 +28,19 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db.init_app(app)
 
 # DB CAN IDENTIFY NEW/EXISTING USERS, BUT APP MUST IDENTIFY WHO IS CURRENTLY LOGGED IN AND MUST INCLUDE A LOGOUT COMPONENT -- SESSIONS
-
-
 @app.route("/", methods=["GET", "POST"])
 def index():
-    if request.method=="POST":
+    if "user" in session:
+      #uname = session["user"]
+      return redirect(url_for("search"))
+
+    return redirect(url_for("login"))
+
+@app.route("/login", methods = ["GET", "POST"])
+def login():
+   if request.method == "POST":      
         # usernames are not case sensitive
-        uname = request.form.get("username").lower()
+        uname = request.form.get("username").lower() # or request.form["username"]
         pw = request.form.get("password")
 
         if not uname or not pw:
@@ -46,12 +51,13 @@ def index():
         if not uname_present:
             flash("Incorrect username or password")
             return render_template("index.html")
-        
-        #return render_template("index.html", new_user=True) -- REMOVE THIS FROM index.html
-        flash("Welcome back!")
-        return redirect(url_for("search"), code=307) # POST request to /search
+      
+        # if there are no issues with uname/pw, sign user in
+        session["user"] = uname
+        flash("Login successful")
+        return redirect(url_for("index"))
 
-    return render_template("index.html")
+   return render_template("login.html")
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -75,32 +81,24 @@ def register():
             db.session.add(user)
             db.session.commit()
             flash("Welcome!")
-            return redirect(url_for("search"), code=307) # this code preserves the method type. See https://stackoverflow.com/questions/15473626/make-a-post-request-while-redirecting-in-flask
+            # if there are no issues with uname/pw, sign user in
+            flash("Registration successful")
+            session["user"] = uname
+            return redirect(url_for("index"))
         else:
             flash("Sorry! That username is already taken")
-            return render_template("register.html", exists=True) 
+            #return render_template("register.html")  # this line is not needed
 
     return render_template("register.html")  
 
-@app.route("/search", methods=["POST"])
+@app.route("/logout")
+def logout():
+   # remove the username from the session if it is there
+   session.pop("user", None)
+   flash("Logged out")
+   return redirect(url_for("index"))
+
+@app.route("/search")
 def search():
-    # the following should really be under /authentication
-    # usernames are not case sensitive
-    uname = request.form.get("username")
-    if uname is None:
-        return render_template("search.html")
-    else:
-        uname = uname.lower()
-    '''pw = request.form.get("password")
-
-    if not uname or not pw:
-        # in cases like these, is it not better to somehow redirect to the page instead?
-        # Not sure how to redirect AND set context variables
-        return render_template("index.html", empty_field=True)
-
-    uname_present = User.query.filter(and_(User.username == uname, User.password == pw)).all()
-    if not uname_present:
-        return render_template("index.html", invalid_user=True)
-    '''
-    #session[uname]
+    
     return render_template("search.html")

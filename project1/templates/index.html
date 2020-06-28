@@ -1,20 +1,9 @@
 {% extends "layout.html" %}
 
 {% block heading %}
-    Login page
+    Main page
 {% endblock %}
 
 {% block body %}
-    {% if new_user %}
-        Welcome! Please enter your username and password to login for the first time
-    {% endif %}
-    <form action="{{ url_for('index') }}" method="post">
-        <input type="text" name="username" placeholder="Username">
-        <input type="password" name="password" placeholder="Password">
-        <button>Log in</button>
-    </form>
-    New user?
-    <form action="{{ url_for('register') }}" method="get">
-        <button>Register here!</button>
-    </form>
+    <b><a href = '/logout'>click here to log out</a></b>
 {% endblock %}

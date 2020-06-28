@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block body %}
-    <form action="{{ url_for('search') }}" method="POST">
+    <form action="{{ url_for('search') }}" method="get">
         <div class="dropdown">
             <button class="dropbtn">Search by</button>
             <div class="dropdown-content">
@@ -17,7 +17,7 @@
         <button>Search</button>
     </form>
 
-    <form action="{{ url_for('index') }}", method="get">
+    <form action="{{ url_for('logout') }}", method="get">
         <button>Logout</button>
     </form>
 {% endblock %}
