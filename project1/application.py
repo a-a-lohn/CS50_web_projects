@@ -5,6 +5,8 @@ from flask_session import Session
 from sqlalchemy import create_engine, and_
 from sqlalchemy.orm import scoped_session, sessionmaker
 from models import *
+#from forms import BookSearch
+import flask_whooshalchemy as wa
 
 app = Flask(__name__)
 
@@ -24,11 +26,12 @@ app.secret_key = 'something simple for now'
 
 # Tell Flask what SQLAlchemy database to use
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
+# or assign to postgres://ocgmvroyqlnmrv:b8044becd59f4fbdbd3643d95dc362599955e1c388a32c8f4e871049d9e5884d@ec2-34-232-147-86.compute-1.amazonaws.com:5432/d34cknuu6egpkc
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db.init_app(app)
 
 # DB CAN IDENTIFY NEW/EXISTING USERS, BUT APP MUST IDENTIFY WHO IS CURRENTLY LOGGED IN AND MUST INCLUDE A LOGOUT COMPONENT -- SESSIONS
-@app.route("/", methods=["GET", "POST"])
+@app.route("/")
 def index():
     if "user" in session:
       #uname = session["user"]
@@ -47,6 +50,7 @@ def login():
             flash("Please enter both a username and a password")
             return render_template("index.html")
 
+        # the table name may be 'user', but the object name in models.py is 'User'
         uname_present = User.query.filter(and_(User.username == uname, User.password == pw)).all()
         if not uname_present:
             flash("Incorrect username or password")
@@ -98,7 +102,28 @@ def logout():
    flash("Logged out")
    return redirect(url_for("index"))
 
-@app.route("/search")
+@app.route("/search", methods=["GET", "POST"])
 def search():
-    
-    return render_template("search.html")
+    search = BookSearch(request.form)
+    if request.method == 'POST':
+        return search_results(search)
+
+    return render_template('search.html', form=search)
+
+@app.route('/results')
+def search_results(search):
+    results = []
+    search_string = search.data['search']
+    if search.data['search'] == '':
+        #uname_present = User.query.filter(and_(User.username == uname, User.password == pw)).all()
+        query = Book.query.filter(Book.isbn.like("%%")).all()
+        results = query.all()
+    if not results:
+        flash('No results found!')
+        return redirect(url_for("search"))
+    else:
+        # display results
+        return render_template('results.html', results=results)
+
+if __name__ == '__main__':
+    app.run()

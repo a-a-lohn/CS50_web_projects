@@ -11,6 +11,7 @@ class User(db.Model):
 
 class Book(db.Model):
   __tablename__ = "book"
+  __searchable__ = ['isbn', 'title', 'author']  # these fields will be indexed by whoosh
   isbn = db.Column(db.String, primary_key=True)
   title = db.Column(db.String, nullable=False)
   author = db.Column(db.String, nullable=False)
