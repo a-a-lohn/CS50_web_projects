@@ -104,11 +104,11 @@ def logout():
 
 @app.route("/search", methods=["GET", "POST"])
 def search():
-    search = BookSearch(request.form)
+    #search = BookSearch(request.form)
     if request.method == 'POST':
-        return search_results(search)
+        return render_template('search.html') #search_results(search)
 
-    return render_template('search.html', form=search)
+    return render_template('search.html')#, form=search)
 
 @app.route('/results')
 def search_results(search):
