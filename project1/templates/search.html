@@ -1,22 +1,27 @@
 {% extends "layout.html" %}
+
 {% block heading %}
     Search for a book
 {% endblock %}
 
 {% block body %}
-    <form action="{{ url_for('search') }}" method="get">
-        <div class="dropdown">
-            <button class="dropbtn">Search by</button>
-            <div class="dropdown-content">
-              <a href="#">Link 1</a>
-              <a href="#">Link 2</a>
-              <a href="#">Link 3</a>
-            </div>
-          </div>
-        <button>Search</button>
+    <form action="{{ url_for('search') }}" method="post">
+        <input type="text" name="book_search" placeholder="Search for a book title, author or ISBN">
+        <button>Go!</button>
     </form>
+    <div class="books">
+        <ul>
+            {% for book in books %}
+                <li>
+                    <a href="{{ url_for('book', book_isbn=book.isbn) }}" method="post">
+                        {{ book.title }} by {{ book.author }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
 
-    <form action="{{ url_for('logout') }}", method="get">
+    <form action="{{ url_for('logout') }}", method="post">
         <button>Logout</button>
     </form>
 {% endblock %}

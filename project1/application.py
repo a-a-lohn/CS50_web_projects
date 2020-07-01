@@ -1,6 +1,5 @@
 import os
 
-
 from flask import Flask, session, render_template, request, redirect, url_for, flash
 from flask_session import Session
 from sqlalchemy import create_engine, and_
@@ -49,13 +48,13 @@ def login():
 
         if not uname or not pw:
             flash("Please enter both a username and a password")
-            return render_template("index.html")
+            return render_template("login.html")
 
         # the table name may be 'user', but the object name in models.py is 'User'
         uname_present = User.query.filter(and_(User.username == uname, User.password == pw)).all()
         if not uname_present:
             flash("Incorrect username or password")
-            return render_template("index.html")
+            return render_template("login.html")
       
         # if there are no issues with uname/pw, sign user in
         session["user"] = uname
@@ -85,9 +84,8 @@ def register():
             user = User(username=uname, password=pw)
             db.session.add(user)
             db.session.commit()
-            flash("Welcome!")
             # if there are no issues with uname/pw, sign user in
-            flash("Registration successful")
+            flash("Welcome!")
             session["user"] = uname
             return redirect(url_for("index"))
         else:
@@ -96,7 +94,7 @@ def register():
 
     return render_template("register.html")  
 
-@app.route("/logout")
+@app.route("/logout", methods=["POST"])
 def logout():
    # remove the username from the session if it is there
    session.pop("user", None)
@@ -106,10 +104,27 @@ def logout():
 @app.route("/search", methods=["GET", "POST"])
 def search():
     #search = BookSearch(request.form)
-    if request.method == 'POST':
-        return render_template('search.html') #search_results(search)
+    if "user" in session:
+        if request.method == "POST":
+            flash("here")
+            search = request.form.get("book_search")
+            books = Book.query.filter(Book.author.like("%"+search+"%")).all()
+            for book in books:
+                flash(book.isbn)
+            if books is None:
+                flash("No books found")
+            return render_template("search.html", books=books)
 
-    return render_template('search.html')#, form=search)
+        return render_template("search.html") #search_results(search)
+
+    flash("Please login first")
+    return redirect(url_for("login"))
+
+@app.route("/search/isbn")
+def book(book_isbn):
+    flash(book_isbn)
+    book = Flight.query.get(book_isbn)
+    return render_template("book.html", book=book)
 
 @app.route('/results')
 def search_results(search):
