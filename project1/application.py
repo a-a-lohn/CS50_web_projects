@@ -5,8 +5,6 @@ from flask_session import Session
 from sqlalchemy import create_engine, and_
 from sqlalchemy.orm import scoped_session, sessionmaker
 from models import *
-#from forms import BookSearch
-import flask_whooshalchemy as wa
 
 app = Flask(__name__)
 
@@ -26,15 +24,13 @@ app.secret_key = 'something simple for now'
 
 # Tell Flask what SQLAlchemy database to use
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
-# or assign to postgres://ocgmvroyqlnmrv:b8044becd59f4fbdbd3643d95dc362599955e1c388a32c8f4e871049d9e5884d@ec2-34-232-147-86.compute-1.amazonaws.com:5432/d34cknuu6egpkc
+# or assign above value to: postgres://ocgmvroyqlnmrv:b8044becd59f4fbdbd3643d95dc362599955e1c388a32c8f4e871049d9e5884d@ec2-34-232-147-86.compute-1.amazonaws.com:5432/d34cknuu6egpkc
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db.init_app(app)
 
-# DB CAN IDENTIFY NEW/EXISTING USERS, BUT APP MUST IDENTIFY WHO IS CURRENTLY LOGGED IN AND MUST INCLUDE A LOGOUT COMPONENT -- SESSIONS
 @app.route("/")
 def index():
     if "user" in session:
-      #uname = session["user"]
       return redirect(url_for("search"))
 
     return redirect(url_for("login"))
@@ -103,43 +99,28 @@ def logout():
 
 @app.route("/search", methods=["GET", "POST"])
 def search():
-    #search = BookSearch(request.form)
     if "user" in session:
         if request.method == "POST":
-            flash("here")
             search = request.form.get("book_search")
             books = Book.query.filter(Book.author.like("%"+search+"%")).all()
-            for book in books:
-                flash(book.isbn)
-            if books is None:
+            if not books:
                 flash("No books found")
             return render_template("search.html", books=books)
 
-        return render_template("search.html") #search_results(search)
+        return render_template("search.html")
 
     flash("Please login first")
     return redirect(url_for("login"))
 
-@app.route("/search/isbn")
+# this route extracts variable data from the URL using a GET request - the function arguments correspond to URL data
+@app.route("/search/<string:book_isbn>")
 def book(book_isbn):
-    flash(book_isbn)
-    book = Flight.query.get(book_isbn)
-    return render_template("book.html", book=book)
-
-@app.route('/results')
-def search_results(search):
-    results = []
-    search_string = search.data['search']
-    if search.data['search'] == '':
-        #uname_present = User.query.filter(and_(User.username == uname, User.password == pw)).all()
-        query = Book.query.filter(Book.isbn.like("%%")).all()
-        results = query.all()
-    if not results:
-        flash('No results found!')
-        return redirect(url_for("search"))
-    else:
-        # display results
-        return render_template('results.html', results=results)
+    if "user" in session:
+        book = Book.query.get(book_isbn)
+        return render_template("book.html", book=book)
+    
+    flash("Please login first")
+    return redirect(url_for("login"))
 
 if __name__ == '__main__':
     app.run()
