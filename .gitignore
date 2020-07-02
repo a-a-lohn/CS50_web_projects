@@ -1,0 +1,4 @@
+/project?/*.pyc
+/project?/__pycache__/
+/project?/flask_session/
+/project?/pylintrc
