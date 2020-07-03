@@ -11,7 +11,9 @@ Book Details
         <li>ISBN: {{ book.isbn }}</li>
         <li>Year: {{ book.year}}</li>
     </ul>
-    Leave a review for this book <a href="{{ url_for('review', book_isbn=book.isbn) }}">here</a>
+    {% if not already_reviewed %}
+        Leave a review for this book <a href="{{ url_for('review', book_isbn=book.isbn) }}">here</a>
+    {% endif %}
     <br>
     Goodreads average rating: {{ rating }}
     <div class="reviews">

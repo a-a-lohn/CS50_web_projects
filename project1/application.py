@@ -1,3 +1,5 @@
+# FIND OUT WHERE PYTHON MODULES ARE GETTING INSTALLED
+
 import os
 import requests
 
@@ -17,7 +19,7 @@ if not os.getenv("DATABASE_URL"):
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
-app.secret_key = 'something simple for now'
+app.secret_key = 'something simple for now' # needed for session?
 
 # Set up database
 #engine = create_engine(os.getenv("DATABASE_URL"))
@@ -25,7 +27,6 @@ app.secret_key = 'something simple for now'
 
 # Tell Flask what SQLAlchemy database to use
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
-# or assign above value to: postgres://ocgmvroyqlnmrv:b8044becd59f4fbdbd3643d95dc362599955e1c388a32c8f4e871049d9e5884d@ec2-34-232-147-86.compute-1.amazonaws.com:5432/d34cknuu6egpkc
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db.init_app(app)
 
@@ -80,26 +81,28 @@ def register():
             return render_template("register.html")
         
         uname_taken = User.query.filter(User.username == uname).all()
+        # if there are no issues with uname/pw, add user and sign user in
         if not uname_taken:
             user = User(username=uname, password=pw)
             db.session.add(user)
             db.session.commit()
-            # if there are no issues with uname/pw, sign user in
             flash("Welcome!")
             session["user"] = uname
             return redirect(url_for("index"))
         else:
             flash("Sorry! That username is already taken")
-            #return render_template("register.html")  # this line is not needed
+            return render_template("register.html")  # this line is not needed, but makes more sense to put
 
     return render_template("register.html")  
 
-@app.route("/logout", methods=["POST"])
+@app.route("/logout", methods=["POST", "GET"]) # get should just redirect to prevent error
 def logout():
-   # remove the username from the session if it is there
-   session.pop("user", None)
-   flash("Logged out")
-   return redirect(url_for("index"))
+    if request.method != "POST":
+        return redirect(url_for("index"))
+    # remove the username from the session if it is there
+    session.pop("user", None)
+    flash("Logged out")
+    return redirect(url_for("index"))
 
 @app.route("/search", methods=["GET", "POST"])
 def search():
@@ -124,6 +127,7 @@ def search():
     return redirect(url_for("login"))
 
 # this route extracts variable data from the URL using a GET request - the function arguments correspond to URL data
+# isbn can technically have the char X, so it is a string, not an int
 @app.route("/search/<string:book_isbn>")
 def book(book_isbn):
     if "user" in session:
@@ -135,6 +139,9 @@ def book(book_isbn):
         else:
             data = res.json()
             rating = data['books'][0]['average_rating']
+        # if user already reviewed this book, do not let them review it again
+        if [session["user"] in review.reviewer for review in reviews]:
+            return render_template("book.html", book=book, rating=rating, reviews=reviews, already_reviewed=True)
         return render_template("book.html", book=book, rating=rating, reviews=reviews)
     
     flash("Please login first")
@@ -144,7 +151,6 @@ def book(book_isbn):
 def review(book_isbn):
     if "user" in session:
         book = Book.query.get(book_isbn)
-        # add condition that user cannot have already submitted a review for current book
         if request.method == "POST":
             message = request.form.get("message")
             rating = request.form.get("rating")
