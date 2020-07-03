@@ -11,7 +11,8 @@
         <button>Log in</button>
     </form>
     New user?
-    <form action="{{ url_for('register') }}" method="get">
-        <button>Register here!</button>
+        <a href="{{ url_for('register') }}">
+            <button>Register here!</button>
+        </a>
     </form>
 {% endblock %}
