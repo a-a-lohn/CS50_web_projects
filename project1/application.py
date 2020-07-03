@@ -1,6 +1,7 @@
 import os
+import requests
 
-from flask import Flask, session, render_template, request, redirect, url_for, flash
+from flask import Flask, session, render_template, request, redirect, url_for, flash, jsonify
 from flask_session import Session
 from sqlalchemy import create_engine, and_, or_
 from sqlalchemy.orm import scoped_session, sessionmaker
@@ -27,6 +28,9 @@ app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
 # or assign above value to: postgres://ocgmvroyqlnmrv:b8044becd59f4fbdbd3643d95dc362599955e1c388a32c8f4e871049d9e5884d@ec2-34-232-147-86.compute-1.amazonaws.com:5432/d34cknuu6egpkc
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db.init_app(app)
+
+# prevent app from sorting jsonified data
+app.config['JSON_SORT_KEYS'] = False
 
 @app.route("/")
 def index():
@@ -125,7 +129,13 @@ def book(book_isbn):
     if "user" in session:
         book = Book.query.get(book_isbn)
         reviews = Review.query.filter_by(book_isbn=book_isbn)
-        return render_template("book.html", book=book, reviews=reviews)
+        res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": "ys0hBNpiMjxTgKdVpJBVUw", "isbns": book_isbn})
+        if res.status_code != 200:
+            rating = "Not available"
+        else:
+            data = res.json()
+            rating = data['books'][0]['average_rating']
+        return render_template("book.html", book=book, rating=rating, reviews=reviews)
     
     flash("Please login first")
     return redirect(url_for("login"))
@@ -144,6 +154,24 @@ def review(book_isbn):
             flash("Review added")
         return render_template("review.html", book=book)
 
+@app.route("/api/<string:book_isbn>")
+def book_api(book_isbn):
+    book = Book.query.get(book_isbn)
+    if book is None:
+        # make a page instead
+        return jsonify({"error": "Invalid isbn"}), 404
+    
+    reviews = Review.query.filter_by(book_isbn=book_isbn)
+    num_reviews = Review.query.filter_by(book_isbn=book_isbn).count()
+    avg_score = sum([review.rating for review in reviews])/num_reviews
+    return jsonify({
+            "title": book.title,
+            "author": book.author,
+            "year": book.year,
+            "isbn": book.isbn,
+            "review_count": num_reviews,
+            "average_score": avg_score
+            })
 
 if __name__ == '__main__':
     app.run()

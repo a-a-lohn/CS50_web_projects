@@ -13,6 +13,7 @@ Book Details
     </ul>
     Leave a review for this book <a href="{{ url_for('review', book_isbn=book.isbn) }}">here</a>
     <br>
+    Goodreads average rating: {{ rating }}
     <div class="reviews">
         <ul>
             {% for review in reviews %}
