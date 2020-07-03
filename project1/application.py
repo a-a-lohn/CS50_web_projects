@@ -2,7 +2,7 @@ import os
 
 from flask import Flask, session, render_template, request, redirect, url_for, flash
 from flask_session import Session
-from sqlalchemy import create_engine, and_
+from sqlalchemy import create_engine, and_, or_
 from sqlalchemy.orm import scoped_session, sessionmaker
 from models import *
 
@@ -101,8 +101,15 @@ def logout():
 def search():
     if "user" in session:
         if request.method == "POST":
+            # get the search value inputted by user and display results
+            # ilike function is case-insensitive
             search = request.form.get("book_search")
-            books = Book.query.filter(Book.author.like("%"+search+"%")).all()
+            if search:
+                books = Book.query.filter(or_(Book.author.ilike("%"+search+"%"), \
+                    Book.title.ilike("%"+search+"%"), \
+                    Book.isbn.ilike("%"+search+"%"))).all()
+            else: books=[]
+            flash(str(len(books)) + " results")
             if not books:
                 flash("No books found")
             return render_template("search.html", books=books)
@@ -117,10 +124,26 @@ def search():
 def book(book_isbn):
     if "user" in session:
         book = Book.query.get(book_isbn)
-        return render_template("book.html", book=book)
+        reviews = Review.query.filter_by(book_isbn=book_isbn)
+        return render_template("book.html", book=book, reviews=reviews)
     
     flash("Please login first")
     return redirect(url_for("login"))
+
+@app.route("/search/<string:book_isbn>/review", methods=["GET", "POST"])
+def review(book_isbn):
+    if "user" in session:
+        book = Book.query.get(book_isbn)
+        # add condition that user cannot have already submitted a review for current book
+        if request.method == "POST":
+            message = request.form.get("message")
+            rating = request.form.get("rating")
+            review = Review(book_isbn=book_isbn, reviewer=session["user"], message=message, rating=rating)
+            db.session.add(review)
+            db.session.commit()
+            flash("Review added")
+        return render_template("review.html", book=book)
+
 
 if __name__ == '__main__':
     app.run()

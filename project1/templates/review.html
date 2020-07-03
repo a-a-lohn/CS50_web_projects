@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+
+{% block heading %}
+    Write a review
+{% endblock %}
+
+{% block body %}
+    <form action="{{ url_for('review', book_isbn=book.isbn) }}" method="post">
+        Rating from 1 to 5: <input type="number" name="rating">
+        <input type="text" name="message" placeholder="Please leave a short message on what you thought of this book">
+        <button>Submit</button>
+    </form>
+
+    <a href="{{ url_for('book', book_isbn=book.isbn) }}">Go back</a>
+
+    <form action="{{ url_for('logout') }}", method="post">
+        <button>Logout</button>
+    </form>
+{% endblock %}
