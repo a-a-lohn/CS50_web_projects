@@ -19,4 +19,9 @@ Consistent problems
 -Running code in terminal (or using CRTL+ALT+N) causes import errors, likely attributed to the fact that the
 terminal seems to be set to run with Python 2.7 instead of Python 3 (F1; Pthon: Select Interpreter; Entire Workspace)
 -Styling (from style.css) does not display in web browser, tried bypassing cache using CRTL+F5
--flask_session directory contents not being ignored even with directory listed in .gitignore?
+-init.sh does not run
+-Add to requirements.txt?
+-Use a virtual env next time
+
+Solves problems
+-How to untrack files already added (to index): http://www.codeblocq.com/2016/01/Untrack-files-already-added-to-git-repository-based-on-gitignore/
