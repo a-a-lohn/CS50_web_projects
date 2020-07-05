@@ -131,11 +131,16 @@ def search():
 @app.route("/search/<string:book_isbn>")
 def book(book_isbn):
     if "user" in session:
+        # basic check for isbn validity solely based on length
+        if len(book_isbn) != 10:
+            message = "Please enter a valid ISBN"
+            return render_template("error.html", message=message)
         book = Book.query.get(book_isbn)
         reviews = Review.query.filter_by(book_isbn=book_isbn)
         res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": "ys0hBNpiMjxTgKdVpJBVUw", "isbns": book_isbn})
         if res.status_code != 200:
             rating = "Not available"
+            return render_template("book.html", book=book, rating=rating, reviews=reviews, already_reviewed=True)
         else:
             data = res.json()
             rating = data['books'][0]['average_rating']
@@ -153,11 +158,15 @@ def review(book_isbn):
         book = Book.query.get(book_isbn)
         if request.method == "POST":
             message = request.form.get("message")
-            rating = request.form.get("rating")
+            rating = int(request.form.get("rating"))
+            if rating < 1 or rating > 5:
+                flash("Please enter a number from 1 to 5")
+                return render_template("review.html", book=book)
             review = Review(book_isbn=book_isbn, reviewer=session["user"], message=message, rating=rating)
             db.session.add(review)
             db.session.commit()
-            flash("Review added")
+            flash("Your review added was added!")
+            return redirect(url_for("book", book_isbn=book.isbn))
         return render_template("review.html", book=book)
 
 @app.route("/api/<string:book_isbn>")

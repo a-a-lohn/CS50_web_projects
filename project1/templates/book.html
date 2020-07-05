@@ -12,15 +12,14 @@ Book Details
         <li>Year: {{ book.year}}</li>
     </ul>
     {% if not already_reviewed %}
-        Leave a review for this book <a href="{{ url_for('review', book_isbn=book.isbn) }}">here</a>
+        Leave a review for this book <a href="{{ url_for('review', book_isbn=book.isbn) }}">here</a><br><br>
     {% endif %}
-    <br>
-    Goodreads average rating: {{ rating }}
+    Average rating from Goodreads: {{ rating }}<br><br>
     <div class="reviews">
         <ul>
             {% for review in reviews %}
                 <li>Rating: {{ review.rating }}</li>
-                <li>{{ review.message }}</li>
+                <li>Message: {{ review.message }}</li>
                 <li>Reviewer: {{ review.reviewer }}</li>
                 <br>
             {% endfor %}
