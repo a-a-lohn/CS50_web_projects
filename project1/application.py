@@ -37,7 +37,6 @@ app.config['JSON_SORT_KEYS'] = False
 def index():
     if "user" in session:
       return redirect(url_for("search"))
-
     return redirect(url_for("login"))
 
 @app.route("/login", methods = ["GET", "POST"])
@@ -46,22 +45,18 @@ def login():
         # usernames are not case sensitive
         uname = request.form.get("username").lower() # or request.form["username"]
         pw = request.form.get("password")
-
         if not uname or not pw:
             flash("Please enter both a username and a password")
             return render_template("login.html")
-
         # the table name may be 'user', but the object name in models.py is 'User'
         uname_present = User.query.filter(and_(User.username == uname, User.password == pw)).all()
         if not uname_present:
             flash("Incorrect username or password")
             return render_template("login.html")
-      
         # if there are no issues with uname/pw, sign user in
         session["user"] = uname
         flash("Login successful")
         return redirect(url_for("index"))
-
    return render_template("login.html")
 
 @app.route("/register", methods=["GET", "POST"])
@@ -70,16 +65,13 @@ def register():
         # usernames are not case sensitive
         uname = request.form.get("username").lower()
         pw = request.form.get("password")
-
         if not uname or not pw:
             flash("Please enter both a username and a password")
             return render_template("register.html")
-        
         pw2 = request.form.get("password2")
         if pw != pw2:
             flash("Password attempts do not match")
             return render_template("register.html")
-        
         uname_taken = User.query.filter(User.username == uname).all()
         # if there are no issues with uname/pw, add user and sign user in
         if not uname_taken:
@@ -92,7 +84,6 @@ def register():
         else:
             flash("Sorry! That username is already taken")
             return render_template("register.html")  # this line is not needed, but makes more sense to put
-
     return render_template("register.html")  
 
 @app.route("/logout", methods=["POST", "GET"]) # get should just redirect to prevent error
@@ -119,10 +110,8 @@ def search():
             flash(str(len(books)) + " results")
             if not books:
                 flash("No books found")
-            return render_template("search.html", books=books)
-
-        return render_template("search.html")
-
+            return render_template("search.html", books=books, user=session["user"])
+        return render_template("search.html", user=session["user"])
     flash("Please login first")
     return redirect(url_for("login"))
 
@@ -148,13 +137,16 @@ def book(book_isbn):
         if session["user"] in [review.reviewer for review in reviews]:
             return render_template("book.html", book=book, rating=rating, reviews=reviews, already_reviewed=True)
         return render_template("book.html", book=book, rating=rating, reviews=reviews)
-    
     flash("Please login first")
     return redirect(url_for("login"))
 
 @app.route("/search/<string:book_isbn>/review", methods=["GET", "POST"])
 def review(book_isbn):
     if "user" in session:
+        # basic check for isbn validity solely based on length
+        if len(book_isbn) != 10:
+            message = "Please enter a valid ISBN"
+            return render_template("error.html", message=message)
         book = Book.query.get(book_isbn)
         if request.method == "POST":
             message = request.form.get("message")
@@ -168,13 +160,14 @@ def review(book_isbn):
             flash("Your review added was added!")
             return redirect(url_for("book", book_isbn=book.isbn))
         return render_template("review.html", book=book)
+    return redirect(url_for("login"))
 
 @app.route("/api/<string:book_isbn>")
 def book_api(book_isbn):
     book = Book.query.get(book_isbn)
     if book is None:
-        # make a page instead
-        return jsonify({"error": "Invalid isbn"}), 404
+        message = "Please enter a valid ISBN"
+        return render_template("error.html", message=message), 404
     
     reviews = Review.query.filter_by(book_isbn=book_isbn)
     num_reviews = Review.query.filter_by(book_isbn=book_isbn).count()
