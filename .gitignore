@@ -1,5 +1,6 @@
-/project?/*.pyc
-/project?/__pycache__/
-/project?/flask_session/
-project1/flask_session/**
-/project?/pylintrc
+**/*.pyc
+**/.pylintrc
+**/__pycache__/
+**/flask_session/
+**/.sass-cache/
+project1/flask_session/
