@@ -9,8 +9,14 @@ Password: see CS50 Web dev notes
 URI: see CS50 Web dev notes
 
 ***ENV VARIABLES***
-
 export DATABASE_URL=postgres://ocgmvroyqlnmrv:b8044becd59f4fbdbd3643d95dc362599955e1c388a32c8f4e871049d9e5884d@ec2-34-232-147-86.compute-1.amazonaws.com:5432/d34cknuu6egpkc
 
 export FLASK_ENV=development
 export FLASK_APP=application.py
+
+Consistent problems
+-Env variables reset between uses
+-Running code in terminal (or using CRTL+ALT+N) causes import errors, likely attributed to the fact that the
+terminal seems to be set to run with Python 2.7 instead of Python 3 (F1; Pthon: Select Interpreter; Entire Workspace)
+-Styling (from style.css) does not display in web browser, tried bypassing cache using CRTL+F5
+-flask_session directory contents not being ignored even with directory listed in .gitignore?
