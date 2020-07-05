@@ -140,7 +140,7 @@ def book(book_isbn):
             data = res.json()
             rating = data['books'][0]['average_rating']
         # if user already reviewed this book, do not let them review it again
-        if [session["user"] in review.reviewer for review in reviews]:
+        if session["user"] in [review.reviewer for review in reviews]:
             return render_template("book.html", book=book, rating=rating, reviews=reviews, already_reviewed=True)
         return render_template("book.html", book=book, rating=rating, reviews=reviews)
     
