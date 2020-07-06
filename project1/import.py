@@ -1,4 +1,4 @@
-# run this code to create import book from books.csv into the db
+# run this code to import books from books.csv into the db
 
 import os
 

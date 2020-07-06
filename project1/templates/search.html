@@ -7,7 +7,7 @@
 
 {% block body %}
     <form action="{{ url_for('search') }}" method="post">
-        <input type="text" name="book_search" placeholder="Search for a book title, author or ISBN">
+        <input type="text" name="book_search" placeholder="Search for a book title, author or ISBN" size="40px">
         <button>Go!</button>
     </form>
     <div class="books">

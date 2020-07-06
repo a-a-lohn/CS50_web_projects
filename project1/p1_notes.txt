@@ -23,5 +23,6 @@ terminal seems to be set to run with Python 2.7 instead of Python 3 (F1; Pthon: 
 -Add to requirements.txt?
 -Use a virtual env next time
 
-Solves problems
+
+Solved problems
 -How to untrack files already added (to index): http://www.codeblocq.com/2016/01/Untrack-files-already-added-to-git-repository-based-on-gitignore/

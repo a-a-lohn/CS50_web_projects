@@ -1,5 +1,3 @@
-# FIND OUT WHERE PYTHON MODULES ARE GETTING INSTALLED
-
 import os
 import requests
 
