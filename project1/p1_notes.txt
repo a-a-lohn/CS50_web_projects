@@ -1,5 +1,3 @@
-#!/bin/bash
-
 DB info
 Host: ec2-34-232-147-86.compute-1.amazonaws.com
 Database: d34cknuu6egpkc
@@ -8,21 +6,15 @@ Port: 5432
 Password: see CS50 Web dev notes
 URI: see CS50 Web dev notes
 
-***ENV VARIABLES***
-export DATABASE_URL=postgres://ocgmvroyqlnmrv:b8044becd59f4fbdbd3643d95dc362599955e1c388a32c8f4e871049d9e5884d@ec2-34-232-147-86.compute-1.amazonaws.com:5432/d34cknuu6egpkc
-
-export FLASK_ENV=development
-export FLASK_APP=application.py
-
 Consistent problems
--Env variables reset between uses
--Running code in terminal (or using CRTL+ALT+N) causes import errors, likely attributed to the fact that the
-terminal seems to be set to run with Python 2.7 instead of Python 3 (F1; Pthon: Select Interpreter; Entire Workspace)
 -Styling (from style.css) does not display in web browser, tried bypassing cache using CRTL+F5
--init.sh does not run
--Add to requirements.txt?
 -Use a virtual env next time
-
 
 Solved problems
 -How to untrack files already added (to index): http://www.codeblocq.com/2016/01/Untrack-files-already-added-to-git-repository-based-on-gitignore/
+-How to run code in Python3 instead of Python2 (i.e. without import errors):
+add "code-runner.executorMap.python": "python3 -u" in .vscode/settings.json (or in a more general spot,
+but this folder should be in the workspace root)
+-Env variables reset between uses: set env variables directly in app.py
+-init.sh does not run: no need
+-Add to requirements.txt: done
