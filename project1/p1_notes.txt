@@ -18,3 +18,6 @@ but this folder should be in the workspace root)
 -Env variables reset between uses: set env variables directly in app.py
 -init.sh does not run: no need
 -Add to requirements.txt: done
+-Styling (from style.css) does not display in web browser:
+Putting style.css in static dir outside of templates dir plus bypassing cache kind of works, but some attributes
+still don't display correctly
