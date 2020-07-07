@@ -9,9 +9,11 @@ from models import *
 
 app = Flask(__name__)
 
-# Check for environment variable
-if not os.getenv("DATABASE_URL"):
-    raise RuntimeError("DATABASE_URL is not set")
+# set environment variables
+os.environ["DATABASE_URL"] = "postgres://ocgmvroyqlnmrv:b8044becd59f4fbdbd3643d95dc362599955e1c388a32c8f4e871049d9e5884d@ec2-34-232-147-86.compute-1.amazonaws.com:5432/d34cknuu6egpkc"
+os.environ["FLASK_ENV"] = "development"
+os.environ["FLASK_APP"] = "application.py"
+os.environ["FLASK_DEBUG"] = "1"
 
 # Configure session to use filesystem
 app.config["SESSION_PERMANENT"] = False
@@ -27,7 +29,6 @@ app.secret_key = 'something simple for now' # needed for session?
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db.init_app(app)
-
 # prevent app from sorting jsonified data
 app.config['JSON_SORT_KEYS'] = False
 
