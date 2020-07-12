@@ -1,7 +1,6 @@
 import os
 import requests
-#add a comment
-#add another comment
+
 from flask import Flask, session, render_template, request, redirect, url_for, flash, jsonify
 from flask_session import Session
 from sqlalchemy import create_engine, and_, or_
